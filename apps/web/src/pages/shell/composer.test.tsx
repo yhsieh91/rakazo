@@ -1370,9 +1370,9 @@ describe("composer jailbreak toggle", () => {
       onOpenJailbreakSettings: vi.fn(),
     });
     act(() => {
-      container!.querySelector<HTMLElement>(
-        '[data-testid="composer-jailbreak"] [role="switch"]',
-      )!.click();
+      container!
+        .querySelector<HTMLElement>('[data-testid="composer-jailbreak"] [role="switch"]')!
+        .click();
     });
     expect(onJailbreakChange).toHaveBeenCalledWith(false);
   });

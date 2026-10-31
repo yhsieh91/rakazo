@@ -64,4 +64,3 @@ describe("jailbreak RPC contract", () => {
     ).toBe(true);
   });
 });
-

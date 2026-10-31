@@ -29,10 +29,7 @@ import {
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { ModelCredential } from "../lib/model-auth";
-import {
-  subscribeModelSettingsFocus,
-  takeModelSettingsFocus,
-} from "../lib/model-settings-focus";
+import { subscribeModelSettingsFocus, takeModelSettingsFocus } from "../lib/model-settings-focus";
 import type { ModelRoleConnectIntent } from "./ModelRoleSettings";
 import { ModelRoleSettings } from "./ModelRoleSettings";
 import { CompatibleModelFields } from "./model-settings/compatible-model-fields";

@@ -9,9 +9,5 @@ export function jailbreakAppliesToRun(input: {
   trigger: string;
   routineId?: string | null;
 }): boolean {
-  return (
-    input.enabled &&
-    !input.routineId &&
-    JAILBREAK_TRIGGERS.has(input.trigger as RunTrigger)
-  );
+  return input.enabled && !input.routineId && JAILBREAK_TRIGGERS.has(input.trigger as RunTrigger);
 }

@@ -118,9 +118,8 @@ async function runTurn({
     );
   const tx = {
     userModelCredential: {
-      findFirst: vi.fn(
-        async (args: { where: { id: string } }) =>
-          withPrefs(credentials.find((row) => row.id === args.where.id)),
+      findFirst: vi.fn(async (args: { where: { id: string } }) =>
+        withPrefs(credentials.find((row) => row.id === args.where.id)),
       ),
       delete: vi.fn(async () => null),
       count: vi.fn(async () => 0),

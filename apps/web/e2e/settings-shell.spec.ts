@@ -155,6 +155,13 @@ test("settings shell is two-pane and deep-links Models Memory Voice Usage", asyn
   await expect(settings.getByTestId("model-role-main")).toBeVisible();
   await expect(settings.getByTestId("model-role-approval")).toBeVisible();
   await captureScreenshot(page, testInfo, "settings-shell-models");
+  const jailbreakModels = settings.getByTestId("model-role-jailbreak");
+  await jailbreakModels.scrollIntoViewIfNeeded();
+  await expect(jailbreakModels).toBeVisible();
+  await expect(
+    settings.getByRole("heading", { name: "Jailbreak models", exact: true }),
+  ).toBeVisible();
+  await captureScreenshot(page, testInfo, "settings-shell-jailbreak-models");
 
   await settings.getByTestId("settings-nav-memory").click();
   await expect(settings).toHaveAttribute("data-settings-section", "memory");
