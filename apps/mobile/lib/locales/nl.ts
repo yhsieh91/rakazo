@@ -23,6 +23,9 @@ export const NL_MESSAGES: Record<string, string> = {
   "Add a model in Settings to use this.": "Voeg een model toe in Instellingen om dit te gebruiken.",
   "Approval model": "Goedkeuringsmodel",
   "Jailbreak models": "Jailbreak-modellen",
+  Jailbreak: "Jailbreak",
+  "Jailbreak · {model}": "Jailbreak · {model}",
+  "Jailbreak, {model}": "Jailbreak, {model}",
   "Main model": "Hoofdmodel",
   "Add fallback": "Back-upmodel toevoegen",
   "Manage {provider}": "{provider} beheren",
@@ -105,6 +108,10 @@ export const NL_MESSAGES: Record<string, string> = {
   "Your model provider": "Jouw modelaanbieder",
   "Connect a model in Settings before running bots.":
     "Verbind een model in Instellingen voordat je bots uitvoert.",
+  "None of the jailbreak models could start. Choose one in Settings → Models.":
+    "Geen van de jailbreak-modellen kon starten. Kies er een in Instellingen → Modellen.",
+  "Choose a jailbreak model in Settings → Models.":
+    "Kies een jailbreak-model in Instellingen → Modellen.",
   "Connect your own API key in Models or choose Rakazo credits in Billing.":
     "Verbind je eigen API-sleutel bij Modellen of kies Rakazo-tegoed bij Facturatie.",
   "The model provider returned an error.": "De modelaanbieder heeft een fout teruggegeven.",

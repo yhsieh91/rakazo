@@ -1376,4 +1376,21 @@ describe("composer jailbreak toggle", () => {
     });
     expect(onJailbreakChange).toHaveBeenCalledWith(false);
   });
+
+  it("keeps the off switch when jailbreak is on and no model is configured", () => {
+    const onJailbreakChange = vi.fn();
+    renderComposer(async () => true, {
+      jailbreakConfigured: false,
+      jailbreakEnabled: true,
+      onJailbreakChange,
+      onOpenJailbreakSettings: vi.fn(),
+    });
+    expect(container!.querySelector('[data-testid="composer-jailbreak-settings"]')).toBeNull();
+    act(() => {
+      container!
+        .querySelector<HTMLElement>('[data-testid="composer-jailbreak"] [role="switch"]')!
+        .click();
+    });
+    expect(onJailbreakChange).toHaveBeenCalledWith(false);
+  });
 });

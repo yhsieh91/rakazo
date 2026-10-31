@@ -732,7 +732,7 @@ export const Composer = memo(function Composer({
       ) : null}
       {onJailbreakChange || onOpenJailbreakSettings ? (
         <div data-testid="composer-jailbreak" className="mb-2 flex items-center gap-2 ps-1">
-          {jailbreakConfigured ? (
+          {jailbreakConfigured || jailbreakEnabled ? (
             <>
               <Switch
                 size="sm"

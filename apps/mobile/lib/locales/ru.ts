@@ -22,6 +22,9 @@ export const RU_MESSAGES: Record<string, string> = {
   "Add a model in Settings to use this.": "Добавьте модель в настройках, чтобы использовать это.",
   "Approval model": "Модель проверки действий",
   "Jailbreak models": "Jailbreak-модели",
+  Jailbreak: "Jailbreak",
+  "Jailbreak · {model}": "Jailbreak · {model}",
+  "Jailbreak, {model}": "Jailbreak, {model}",
   "Main model": "Основная модель",
   "Add fallback": "Добавить резервную модель",
   "Manage {provider}": "Управление: {provider}",
@@ -104,6 +107,10 @@ export const RU_MESSAGES: Record<string, string> = {
   "Your model provider": "Ваш поставщик моделей",
   "Connect a model in Settings before running bots.":
     "Подключите модель в настройках, прежде чем запускать ботов.",
+  "None of the jailbreak models could start. Choose one in Settings → Models.":
+    "Ни одна jailbreak-модель не запустилась. Выберите модель в Настройки → Модели.",
+  "Choose a jailbreak model in Settings → Models.":
+    "Выберите jailbreak-модель в Настройки → Модели.",
   "Connect your own API key in Models or choose Rakazo credits in Billing.":
     "Подключите свой API-ключ в разделе «Модели» или выберите кредиты Rakazo в разделе «Оплата».",
   "The model provider returned an error.": "Поставщик моделей вернул ошибку.",

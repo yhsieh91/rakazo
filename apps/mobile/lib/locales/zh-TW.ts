@@ -15,6 +15,9 @@ export const ZH_TW_MESSAGES: Record<string, string> = {
   "The screen connection closed.": "螢幕連線已關閉。",
   "Approval model": "核准模型",
   "Jailbreak models": "越獄模型",
+  Jailbreak: "越獄",
+  "Jailbreak · {model}": "越獄 · {model}",
+  "Jailbreak, {model}": "越獄，{model}",
   "Main model": "主模型",
   "Add fallback": "新增備援模型",
   "Manage {provider}": "管理 {provider}",
@@ -89,6 +92,9 @@ export const ZH_TW_MESSAGES: Record<string, string> = {
   "Your Anthropic": "你的 Anthropic",
   "Your model provider": "你的模型供應商",
   "Connect a model in Settings before running bots.": "執行機器人前，請先在設定中連接模型。",
+  "None of the jailbreak models could start. Choose one in Settings → Models.":
+    "越獄模型都無法啟動。請在設定 → 模型中選擇一個。",
+  "Choose a jailbreak model in Settings → Models.": "請在設定 → 模型中選擇越獄模型。",
   "Connect your own API key in Models or choose Rakazo credits in Billing.":
     "請在「模型」中連接你自己的 API 金鑰，或在「帳務」中選擇 Rakazo 點數。",
   "The model provider returned an error.": "模型供應商回傳了錯誤。",

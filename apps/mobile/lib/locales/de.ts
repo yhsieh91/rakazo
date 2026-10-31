@@ -25,6 +25,9 @@ export const DE_MESSAGES: Record<string, string> = {
     "Füge in den Einstellungen ein Modell hinzu, um dies zu nutzen.",
   "Approval model": "Freigabemodell",
   "Jailbreak models": "Jailbreak-Modelle",
+  Jailbreak: "Jailbreak",
+  "Jailbreak · {model}": "Jailbreak · {model}",
+  "Jailbreak, {model}": "Jailbreak, {model}",
   "Main model": "Hauptmodell",
   "Add fallback": "Backup-Modell hinzufügen",
   "Manage {provider}": "{provider} verwalten",
@@ -111,6 +114,10 @@ export const DE_MESSAGES: Record<string, string> = {
   "Your model provider": "Dein Modellanbieter",
   "Connect a model in Settings before running bots.":
     "Verbinde ein Modell in den Einstellungen, bevor du Bots ausführst.",
+  "None of the jailbreak models could start. Choose one in Settings → Models.":
+    "Keines der Jailbreak-Modelle konnte starten. Wähle eines unter Einstellungen → Modelle.",
+  "Choose a jailbreak model in Settings → Models.":
+    "Wähle ein Jailbreak-Modell unter Einstellungen → Modelle.",
   "Connect your own API key in Models or choose Rakazo credits in Billing.":
     "Verbinde deinen eigenen API-Schlüssel unter Modelle oder wähle Rakazo-Guthaben unter Abrechnung.",
   "The model provider returned an error.": "Der Modellanbieter hat einen Fehler zurückgegeben.",

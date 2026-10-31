@@ -35,6 +35,7 @@ import { threadHeaderClearance, threadHeaderFloats } from "../../lib/thread-edge
 import { useThreadFeedback } from "../../lib/thread-feedback";
 import { useThreadFocus } from "../../lib/thread-focus";
 import { useThreadSnapshot } from "../../lib/thread-history";
+import { useThreadJailbreak } from "../../lib/thread-jailbreak";
 import { threadKeyboardAvoidance } from "../../lib/thread-keyboard-offset";
 import { useThreadListScroll } from "../../lib/thread-list-scroll";
 import { useThreadMentionCatalog } from "../../lib/thread-mention-catalog";
@@ -62,6 +63,7 @@ import { createThreadHeaderStyles } from "../thread-header-styles";
 import { QuoteSheet } from "./quote-sheet";
 import { ThreadComposerDock } from "./thread-composer-dock";
 import { BotActionsModal, useThreadHeader } from "./thread-header";
+import { ThreadJailbreakRow } from "./thread-jailbreak";
 import { LoadEarlierButton, ThreadWorkingFooter } from "./thread-list-controls";
 import { ThreadMessageList } from "./thread-message-list";
 import { useLatestRowActions, useThreadRows } from "./thread-rows";
@@ -139,6 +141,13 @@ export function Thread({ sessionEpoch, userId }: { sessionEpoch: number; userId:
       : undefined;
   const history = useThreadSnapshot();
   const { snap, composingBots, showingSaved } = history;
+  const jailbreak = useThreadJailbreak({
+    botId,
+    groupId,
+    snap,
+    snapRef: history.snapRef,
+    commitSnap: history.commitSnap,
+  });
   const [agentSkills, setAgentSkills] = useState<AgentSkillCatalogEntry[]>([]);
   const [uploadConfig, setUploadConfig] = useState<{
     maxUploadSizeBytes?: number;
@@ -592,6 +601,18 @@ export function Thread({ sessionEpoch, userId }: { sessionEpoch: number; userId:
             attachments.setPendingAttachments((current) => current.filter((item) => item.id !== id))
           }
         >
+          <ThreadJailbreakRow
+            configured={jailbreak.configured}
+            disabled={composer.sending || attachments.shareImporting}
+            enabled={jailbreak.enabled}
+            modelLabel={jailbreak.modelLabel}
+            onChange={(enabled) => {
+              void jailbreak.setEnabled(enabled).then((result) => {
+                if (result.missing) jailbreak.openSettings();
+              });
+            }}
+            onOpenSettings={jailbreak.openSettings}
+          />
           <ThreadComposer
             key={threadKey}
             ref={composer.composerRef}

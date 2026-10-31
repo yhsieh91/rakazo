@@ -1,6 +1,6 @@
 import type { ModelRoleView, ThreadSnapshot } from "@rakazo/contracts";
 import { canonicalPiProviderId } from "@rakazo/contracts";
-import { JAILBREAK_MODEL_MISSING_ERROR } from "@rakazo/core";
+import { applyJailbreakToSnapshot, JAILBREAK_MODEL_MISSING_ERROR } from "@rakazo/core";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef } from "react";
 import type { SpaceQueries } from "../../lib/query";
@@ -67,9 +67,13 @@ export function useJailbreakToggle({
     async (enabled: boolean) => {
       if (!target) return { ok: false as const, missing: false };
       if (enabled && !primary) return { ok: false as const, missing: true };
+      const requested = target;
+      const threadId = snapshot?.threadId;
       try {
-        const result = await rpc.threads.setJailbreak({ ...target, enabled });
-        updateSnapshot((prev) => (prev ? { ...prev, jailbreakEnabled: result.enabled } : prev));
+        const result = await rpc.threads.setJailbreak({ ...requested, enabled });
+        updateSnapshot((prev) =>
+          applyJailbreakToSnapshot(prev, result.enabled, requested, threadId),
+        );
         return { ok: true as const, missing: false };
       } catch (error) {
         if (errorMessage(error) === JAILBREAK_MODEL_MISSING_ERROR) {
@@ -78,7 +82,7 @@ export function useJailbreakToggle({
         throw error;
       }
     },
-    [primary, rpc, target, updateSnapshot],
+    [primary, rpc, snapshot?.threadId, target, updateSnapshot],
   );
 
   return {

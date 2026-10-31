@@ -22,6 +22,9 @@ export const JA_MESSAGES: Record<string, string> = {
   "Add a model in Settings to use this.": "使用するには設定でモデルを追加してください。",
   "Approval model": "承認モデル",
   "Jailbreak models": "Jailbreakモデル",
+  Jailbreak: "Jailbreak",
+  "Jailbreak · {model}": "Jailbreak · {model}",
+  "Jailbreak, {model}": "Jailbreak, {model}",
   "Main model": "メインモデル",
   "Add fallback": "バックアップモデルを追加",
   "Manage {provider}": "{provider} を管理",
@@ -109,6 +112,10 @@ export const JA_MESSAGES: Record<string, string> = {
   "Your model provider": "お使いのモデルプロバイダー",
   "Connect a model in Settings before running bots.":
     "ボットを実行する前に、設定でモデルを接続してください。",
+  "None of the jailbreak models could start. Choose one in Settings → Models.":
+    "Jailbreakモデルを起動できませんでした。設定 → モデルで選んでください。",
+  "Choose a jailbreak model in Settings → Models.":
+    "設定 → モデルでJailbreakモデルを選んでください。",
   "Connect your own API key in Models or choose Rakazo credits in Billing.":
     "モデルで自分のAPIキーを接続するか、請求でRakazoクレジットを選択してください。",
   "The model provider returned an error.": "モデルプロバイダーがエラーを返しました。",
