@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   APPROVED_ACTION_NOT_RUN_ERROR,
   HOSTED_MODEL_CREDITS_REQUIRED_ERROR,
+  JAILBREAK_MODEL_MISSING_ERROR,
+  JAILBREAK_MODEL_UNAVAILABLE_ERROR,
   isImageInputConfirmation,
   isModelRequiredSendError,
   MISSING_MODEL_RUN_ERROR,
@@ -845,6 +847,17 @@ describe("the one action that fixes a failed run", () => {
         summary: details,
         details,
         recovery: "connection",
+      });
+    },
+  );
+
+  it.each([JAILBREAK_MODEL_UNAVAILABLE_ERROR, JAILBREAK_MODEL_MISSING_ERROR])(
+    "opens the model picker for jailbreak failures: %s",
+    (details) => {
+      expect(normalizeRunError(details)).toEqual({
+        summary: details,
+        details,
+        recovery: "model",
       });
     },
   );

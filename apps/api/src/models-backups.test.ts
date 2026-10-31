@@ -519,6 +519,38 @@ describe("role-based model settings API", () => {
     });
     expect(invalid.response.status).toBe(400);
   });
+  it("stores jailbreak choices independently of main and excludes decision models", async () => {
+    const { call, prisma, roles } = setup();
+    const primary = { provider: availableModel.provider, modelId: availableModel.id };
+    const { response } = await call("models/setRole", {
+      role: "jailbreak",
+      primary,
+      backups: [],
+    });
+    expect(response.status).toBe(200);
+    expect((await response.json()).json.primary).toEqual(primary);
+    expect(prisma.userModelRoleChoice.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { userId: owner.userId, role: "jailbreak" } }),
+    );
+    const read = await call("models/role", { role: "jailbreak" });
+    expect((await read.response.json()).json.primary).toEqual(primary);
+    const main = await call("models/role", { role: "main" });
+    expect((await main.response.json()).json.primary).toBeNull();
+    expect(roles()).toEqual([
+      expect.objectContaining({ role: "jailbreak", position: 0, modelId: availableModel.id }),
+    ]);
+    const catalog = await call("models/forRole", { role: "jailbreak" });
+    expect(
+      (await catalog.response.json()).json.some(
+        (entry: { protocol?: string }) => entry.protocol === "decisions",
+      ),
+    ).toBe(false);
+    const invalid = await call("models/setRole", {
+      role: "jailbreak",
+      primary: { provider: "openrouter", modelId: "typesafe/jev-1.14" },
+    });
+    expect(invalid.response.status).toBe(400);
+  });
   it("rejects stale sessions and unavailable connections without replacing settings", async () => {
     const { call } = setup();
     const stale = await call("models/setRole", {

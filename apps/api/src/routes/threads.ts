@@ -37,6 +37,7 @@ import {
   reactToThreadMessage,
   resolveThreadTarget,
   sendThreadMessage,
+  setThreadJailbreak,
   setThreadUnreadState,
   stopThreadRuns,
   threadHead,
@@ -646,6 +647,16 @@ export function threadsRoutes(ctx: RouterContext) {
           await setThreadUnreadState(deps.prisma, context.actor, target, true);
         }
         return { ok: true as const };
+      }),
+      setJailbreak: authed.threads.setJailbreak.handler(async ({ context, input }) => {
+        const target = await resolveThreadTarget(deps.prisma, context.actor, input);
+        const enabled = await setThreadJailbreak(
+          deps.prisma,
+          context.actor,
+          target,
+          input.enabled,
+        );
+        return { ok: true as const, enabled };
       }),
     },
     externalConversations: {

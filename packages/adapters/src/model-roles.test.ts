@@ -223,6 +223,10 @@ describe("model roles", () => {
         env: { RAKAZO_AUTO_REVIEW_PROVIDER: "local-provider", RAKAZO_AUTO_REVIEW_MODEL: "judge" },
       }),
     ).toEqual({ primary: { provider: "local-provider", modelId: "judge" }, backups: [] });
+    expect(deploymentModelRole("jailbreak", deploymentDefaults)).toEqual({
+      primary: null,
+      backups: [],
+    });
   });
 
   it("uses the deployment's defaults for a member who chose nothing", async () => {

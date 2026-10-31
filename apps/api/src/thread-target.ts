@@ -20,6 +20,7 @@ import {
   BACKGROUND_RUN_TRIGGERS,
   callIdFromClientNonce,
   isConversationalRun,
+  JAILBREAK_MODEL_MISSING_ERROR,
   messageBypassesTakeoverWait,
   messageReaction,
   projectMessages,
@@ -33,6 +34,7 @@ import type { Prisma, PrismaClient, ThreadEvents } from "@rakazo/db";
 import {
   answerWaitingRunWithTextInTransaction,
   appendEventInTransaction,
+  appliedModelRole,
   clearEndedRunState,
   createGroupRepos,
   createRepos,
@@ -77,6 +79,16 @@ export type ThreadTarget =
 
 const THREAD_MESSAGE_PAGE_SIZE = 100;
 const RUNS_NEEDING_CONTINUE = new Set(["queued", "waiting_takeover"]);
+
+async function lockThreadMeta(
+  tx: Prisma.TransactionClient,
+  threadId: string,
+): Promise<{ jailbreakEnabled: boolean }> {
+  const rows = await tx.$queryRaw<Array<{ jailbreakEnabled: boolean }>>`
+    SELECT "jailbreakEnabled" FROM threads WHERE id = ${threadId} FOR SHARE
+  `;
+  return { jailbreakEnabled: rows[0]?.jailbreakEnabled === true };
+}
 
 const STEERABLE_RUN_STATUSES = new Set<string>(QUEUE_HOLDING_RUN_STATUSES);
 /**
@@ -378,7 +390,7 @@ export async function threadSnapshot(
       }),
       deps.prisma.$transaction(
         async (tx) => {
-          await tx.$queryRaw`SELECT id FROM threads WHERE id = ${target.threadId} FOR SHARE`;
+          const meta = await lockThreadMeta(tx, target.threadId);
           const [messagePage, last, activeRuns, busyOrFailed] = await Promise.all([
             loadMessagePage(tx, target.threadId, undefined, THREAD_MESSAGE_PAGE_SIZE),
             tx.event.findFirst({
@@ -451,7 +463,7 @@ export async function threadSnapshot(
                   orderBy: { seq: "asc" },
                 })
               : [];
-          return { messagePage, last, run: currentRun, activeRuns, liveEvents };
+          return { messagePage, last, run: currentRun, activeRuns, liveEvents, meta };
         },
         { timeout: 15_000, maxWait: 5_000 },
       ),
@@ -465,12 +477,13 @@ export async function threadSnapshot(
       run: core.run ? mapRun(core.run) : null,
       activeRuns: core.activeRuns.map(mapRun),
       computer: toComputerStatus(target.botId, target.bot.computer, busyBotName),
+      jailbreakEnabled: core.meta.jailbreakEnabled,
     };
   }
 
   const core = await deps.prisma.$transaction(
     async (tx) => {
-      await tx.$queryRaw`SELECT id FROM threads WHERE id = ${target.threadId} FOR SHARE`;
+      const meta = await lockThreadMeta(tx, target.threadId);
       const [messagePage, last, activeRuns, recentTerminals] = await Promise.all([
         loadMessagePage(tx, target.threadId, undefined, THREAD_MESSAGE_PAGE_SIZE),
         tx.event.findFirst({
@@ -529,6 +542,7 @@ export async function threadSnapshot(
         activeRuns,
         terminalRun: pickLatestTerminalRun(recentTerminals),
         liveEvents,
+        meta,
       };
     },
     { timeout: 15_000, maxWait: 5_000 },
@@ -551,6 +565,7 @@ export async function threadSnapshot(
           ? mapRun(primaryActiveRun)
           : null,
     activeRuns: core.activeRuns.map(mapRun),
+    jailbreakEnabled: core.meta.jailbreakEnabled,
   };
 }
 
@@ -1678,4 +1693,26 @@ export async function setThreadUnreadState(
     data: { unread },
   });
   if (result.count > 1) throw new IsolationError();
+}
+
+/** Turns jailbreak on or off for this conversation. Other threads are unchanged. */
+export async function setThreadJailbreak(
+  prisma: PrismaClient,
+  actor: Actor,
+  target: ThreadTarget,
+  enabled: boolean,
+): Promise<boolean> {
+  if (enabled) {
+    const role = await appliedModelRole(prisma, actor, "jailbreak");
+    if (!role.primary) {
+      throw new ORPCError("BAD_REQUEST", { message: JAILBREAK_MODEL_MISSING_ERROR });
+    }
+  }
+  const result = await prisma.thread.updateMany({
+    where: { id: target.threadId, spaceId: actor.spaceId, userId: actor.userId },
+    data: { jailbreakEnabled: enabled },
+  });
+  if (result.count > 1) throw new IsolationError();
+  if (result.count === 0) throw new ORPCError("NOT_FOUND");
+  return enabled;
 }

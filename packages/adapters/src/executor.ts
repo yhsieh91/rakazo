@@ -19,6 +19,7 @@ import {
   isMessagingChannelRun,
   isOwnerStartedRun,
   isTerminal,
+  JAILBREAK_MODEL_UNAVAILABLE_ERROR,
   MISSING_MODEL_RUN_ERROR,
   MODEL_ACCESS_REQUIRED_RUN_ERROR,
   messagingChannelId,
@@ -32,6 +33,7 @@ import {
   userTurnMessageForRun,
 } from "@rakazo/core";
 import {
+  appliedModelRole,
   effectiveMemoryScope,
   isPartialReplyClientNonce,
   isTooManyDatabaseConnections,
@@ -83,6 +85,7 @@ import {
 import { formatCurrentTimeInstruction } from "./current-time.js";
 import { resolveDeploymentModel } from "./deployment-model.js";
 import type { ExecutorDeps } from "./executor-deps.js";
+import { jailbreakAppliesToRun } from "./jailbreak.js";
 import type { FleetRun } from "./fleet-tools.js";
 import { loadBotGroupDirectory, loadGroupContext } from "./group-handoff.js";
 import {
@@ -742,8 +745,23 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
           );
         }
         const runDeployment = deps.deploymentModelConfigured ? resolveDeploymentModel() : null;
-        const runtimeFallback = runtimeFallbackModel(deps.runtime);
+        const jailbreakOn = jailbreakAppliesToRun({
+          enabled: thread.jailbreakEnabled === true,
+          trigger: run.trigger,
+          routineId: run.routineId,
+        });
+        const jailbreakRole = jailbreakOn
+          ? await appliedModelRole(deps.prisma, run, "jailbreak")
+          : null;
+        const jailbreakChoices = jailbreakOn
+          ? [
+              ...(jailbreakRole?.primary ? [jailbreakRole.primary] : []),
+              ...(jailbreakRole?.backups ?? []),
+            ]
+          : [];
+        const runtimeFallback = jailbreakOn ? undefined : runtimeFallbackModel(deps.runtime);
         const pinError =
+          !jailbreakOn &&
           run.modelPinned &&
           !(
             (await modelCreditBillingEnabled(deps)) &&
@@ -751,15 +769,22 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
           )
             ? pinnedModelCredentialError(modelChoice, overrideCredential)
             : undefined;
-        const selected = selectConfiguredModel({
-          override: modelChoice,
-          overrideCredential,
-          main,
-          hostedProvider: (await modelCreditBillingEnabled(deps))
-            ? resolveDeploymentModel().provider
-            : undefined,
-          defaults: { settings, deployment: runDeployment },
-        });
+        const selected = jailbreakOn
+          ? {
+              provider: undefined,
+              id: null,
+              credential: null,
+              thinkingLevel: null as AgentRunRequest["model"]["thinkingLevel"],
+            }
+          : selectConfiguredModel({
+              override: modelChoice,
+              overrideCredential,
+              main,
+              hostedProvider: (await modelCreditBillingEnabled(deps))
+                ? resolveDeploymentModel().provider
+                : undefined,
+              defaults: { settings, deployment: runDeployment },
+            });
         const selectedProvider = selected.provider ?? runtimeFallback?.provider;
         const selectedModelId = selected.id ?? runtimeFallback?.id;
         // A missing or refused connection of the user's own fails every scheduled run alike.
@@ -775,11 +800,16 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
             await backOffRoutineAfterAccountError(deps, run.routineId);
           }
         };
+        if (jailbreakOn && jailbreakChoices.length === 0) {
+          await failRunBeforeModel(JAILBREAK_MODEL_UNAVAILABLE_ERROR, true);
+          return;
+        }
         if (pinError) {
           await failRunBeforeModel(pinError, pinError === PINNED_PROVIDER_NOT_CONNECTED);
           return;
         }
         if (
+          !jailbreakOn &&
           run.modelPinned &&
           (selected.provider !== modelChoice.modelProvider || selected.id !== modelChoice.modelId)
         ) {
@@ -792,24 +822,26 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
         const scripted = deps.runtime.describe().capabilities.scripted;
         let backupChoices: Promise<ModelRoleChoice[]> | undefined;
         const loadBackups = () =>
-          (backupChoices ??= scripted
-            ? Promise.resolve([])
-            : effectiveModelRole(deps.prisma, run, "main", {
-                settings,
-                deployment: runDeployment,
-              }).then(
-                (role) => role.backups,
-                (error: unknown) => {
-                  getLogger().warn("Backup models could not be loaded", { runId, error });
-                  return [];
-                },
-              ));
+          (backupChoices ??= jailbreakOn
+            ? Promise.resolve(jailbreakChoices)
+            : scripted
+              ? Promise.resolve([])
+              : effectiveModelRole(deps.prisma, run, "main", {
+                  settings,
+                  deployment: runDeployment,
+                }).then(
+                  (role) => role.backups,
+                  (error: unknown) => {
+                    getLogger().warn("Backup models could not be loaded", { runId, error });
+                    return [];
+                  },
+                ));
         // Backups that could not start here are not offered again once the model runs.
         const backupsUnavailable = new Set<ModelRoleChoice>();
         // A main model with no connection, or whose provider refused its sign-in, runs on the
         // first backup that starts. A pinned run asked for its model and keeps it.
         const startOnBackup = async () => {
-          if (run.modelPinned) return undefined;
+          if (run.modelPinned && !jailbreakOn) return undefined;
           for (const choice of await loadBackups()) {
             try {
               const backup = await resolveConnectedModelKey(
@@ -842,7 +874,10 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
           return undefined;
         };
         let start: Awaited<ReturnType<typeof startOnBackup>>;
-        let primaryFailure = { message: MISSING_MODEL_RUN_ERROR, accountFailure: true };
+        let primaryFailure = {
+          message: jailbreakOn ? JAILBREAK_MODEL_UNAVAILABLE_ERROR : MISSING_MODEL_RUN_ERROR,
+          accountFailure: true,
+        };
         let retryPrimary: unknown;
         if (selectedProvider && selectedModelId) {
           if (await modelAccessDenied()) {
@@ -879,13 +914,19 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
             if (!terminal) retryPrimary = error;
           }
         } else if (await modelAccessDenied()) {
-          await failRunBeforeModel(MISSING_MODEL_RUN_ERROR, true);
+          await failRunBeforeModel(
+            jailbreakOn ? JAILBREAK_MODEL_UNAVAILABLE_ERROR : MISSING_MODEL_RUN_ERROR,
+            true,
+          );
           return;
         }
         start ??= await startOnBackup();
         if (!start) {
-          if (retryPrimary) throw retryPrimary;
-          await failRunBeforeModel(primaryFailure.message, primaryFailure.accountFailure);
+          if (!jailbreakOn && retryPrimary) throw retryPrimary;
+          await failRunBeforeModel(
+            jailbreakOn ? JAILBREAK_MODEL_UNAVAILABLE_ERROR : primaryFailure.message,
+            primaryFailure.accountFailure,
+          );
           return;
         }
         const {

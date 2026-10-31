@@ -792,6 +792,8 @@ model Thread {
   unread                      Boolean    @default(false)
   /// Highest message seq the user has read; the "New" divider goes after it. -1 = none read.
   lastReadSeq                 Int        @default(-1)
+  /// When true, user turns in this thread use the member's jailbreak models, not the main model.
+  jailbreakEnabled            Boolean    @default(false)
   messages                    Message[]
   events                      Event[]
   tasks                       Task[]
