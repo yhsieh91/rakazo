@@ -171,6 +171,8 @@ describe("mobile i18n", () => {
       "Your model provider",
       "The model provider returned an error.",
       "Connect a model in Settings before running bots.",
+      "None of the jailbreak models could start. Choose one in Settings → Models.",
+      "Choose a jailbreak model in Settings → Models.",
       "Connect your own API key in Models or choose Rakazo credits in Billing.",
       "{provider} is rate limiting requests. Try again shortly.",
       "{summary} Resets {date}.",

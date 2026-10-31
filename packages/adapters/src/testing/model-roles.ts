@@ -8,6 +8,7 @@ type RoleRow = {
   provider: string;
   modelId: string;
   thinkingLevel: string | null;
+  credentialId?: string | null;
 };
 type RoleWhere = { userId?: string; role?: string };
 type Preference = {

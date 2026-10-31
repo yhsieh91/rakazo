@@ -10,7 +10,7 @@ picks the provider and `PI_DEFAULT_MODEL` the model:
 
 | `PI_DEFAULT_PROVIDER` | Key | Default model |
 | --- | --- | --- |
-| `openrouter` (default) | `OPENROUTER_API_KEY` | `openai/gpt-6-luna` |
+| `openrouter` (default) | `OPENROUTER_API_KEY` | `x-ai/grok-4.7` |
 | `anthropic` | `ANTHROPIC_API_KEY` | `claude-sonnet-5` |
 
 Pick a vision-capable model so screenshot computer tools stay available.

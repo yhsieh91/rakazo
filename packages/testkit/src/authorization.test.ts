@@ -325,6 +325,7 @@ describeWithDatabase("API authorization and resource isolation", () => {
       ],
       ["threads/markRead", { botId: "missing-bot" }],
       ["threads/markUnread", { botId: "missing-bot" }],
+      ["threads/setJailbreak", { botId: "missing-bot", enabled: true }],
       ["threads/head"],
       ["threads/react"],
       ["threads/endCall"],
@@ -667,6 +668,7 @@ describeWithDatabase("API authorization and resource isolation", () => {
       ],
       ["threads/markRead", { botId: ownerBot.id }],
       ["threads/markUnread", { botId: ownerBot.id }],
+      ["threads/setJailbreak", { botId: ownerBot.id, enabled: true }],
       ["computer/status", { botId: ownerBot.id }],
       ["computer/boot", { botId: ownerBot.id }],
       ["computer/stop", { botId: ownerBot.id }],
@@ -718,6 +720,7 @@ describeWithDatabase("API authorization and resource isolation", () => {
       ["threads/followUp", { groupId: ownerGroup.id, text: "intruder follow-up" }],
       ["threads/markRead", { groupId: ownerGroup.id }],
       ["threads/markUnread", { groupId: ownerGroup.id }],
+      ["threads/setJailbreak", { groupId: ownerGroup.id, enabled: true }],
     ];
     await Promise.all(
       groupCalls.map(([procedure, input]) => expectDenied(app, intruder, procedure, input)),

@@ -641,6 +641,10 @@ export const appContract = {
     markUnread: oc
       .input(threadTarget.and(z.object({ messageId: Id.optional() })))
       .output(z.object({ ok: z.literal(true) })),
+    /** Turns jailbreak on or off for this conversation only. */
+    setJailbreak: oc
+      .input(threadTarget.safeExtend({ enabled: z.boolean() }))
+      .output(z.object({ ok: z.literal(true), enabled: z.boolean() })),
   },
   computer: {
     status: oc.input(botId).output(ComputerStatusSchema),

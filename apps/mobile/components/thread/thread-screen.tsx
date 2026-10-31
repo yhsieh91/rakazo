@@ -35,6 +35,7 @@ import { threadHeaderClearance, threadHeaderFloats } from "../../lib/thread-edge
 import { useThreadFeedback } from "../../lib/thread-feedback";
 import { useThreadFocus } from "../../lib/thread-focus";
 import { useThreadSnapshot } from "../../lib/thread-history";
+import { useThreadJailbreak } from "../../lib/thread-jailbreak";
 import { threadKeyboardAvoidance } from "../../lib/thread-keyboard-offset";
 import { useThreadListScroll } from "../../lib/thread-list-scroll";
 import { useThreadMentionCatalog } from "../../lib/thread-mention-catalog";
@@ -139,6 +140,13 @@ export function Thread({ sessionEpoch, userId }: { sessionEpoch: number; userId:
       : undefined;
   const history = useThreadSnapshot();
   const { snap, composingBots, showingSaved } = history;
+  const jailbreak = useThreadJailbreak({
+    botId,
+    groupId,
+    snap,
+    snapRef: history.snapRef,
+    commitSnap: history.commitSnap,
+  });
   const [agentSkills, setAgentSkills] = useState<AgentSkillCatalogEntry[]>([]);
   const [uploadConfig, setUploadConfig] = useState<{
     maxUploadSizeBytes?: number;
@@ -614,6 +622,15 @@ export function Thread({ sessionEpoch, userId }: { sessionEpoch: number; userId:
             stop={composer.stop}
             startVoiceCall={startVoiceCall}
             onSlashAction={composer.runSlashAction}
+            jailbreakConfigured={jailbreak.configured}
+            jailbreakEnabled={jailbreak.enabled}
+            jailbreakModelLabel={jailbreak.modelLabel}
+            onJailbreakChange={(enabled) => {
+              void jailbreak.setEnabled(enabled).then((result) => {
+                if (result.missing) jailbreak.openSettings();
+              });
+            }}
+            onOpenJailbreakSettings={jailbreak.openSettings}
           />
         </ThreadComposerDock>
         {botActionsOpen ? <BotActionsModal actions={botActions} onClose={closeBotActions} /> : null}

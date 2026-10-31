@@ -1281,6 +1281,8 @@ export const ThreadSnapshotSchema = z.object({
   run: RunSchema.nullable(),
   activeRuns: z.array(RunSchema).optional(),
   computer: ComputerStatusSchema.optional(),
+  /** When true, user turns in this thread use the member's jailbreak models. */
+  jailbreakEnabled: z.boolean().optional(),
 });
 export type ThreadSnapshot = z.infer<typeof ThreadSnapshotSchema>;
 

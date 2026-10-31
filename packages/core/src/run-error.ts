@@ -28,6 +28,13 @@ export const MODEL_REQUEST_LIMIT_ERROR =
 
 export const MISSING_MODEL_RUN_ERROR = "Connect a model in Settings before running bots.";
 
+/** Jailbreak is on, but none of the jailbreak models could start. Never fall back to main. */
+export const JAILBREAK_MODEL_UNAVAILABLE_ERROR =
+  "None of the jailbreak models could start. Choose one in Settings → Models.";
+
+/** The composer asked to turn jailbreak on with no jailbreak model configured. */
+export const JAILBREAK_MODEL_MISSING_ERROR = "Choose a jailbreak model in Settings → Models.";
+
 /** A deployment model run while the organization has not chosen Rakazo credits. */
 export const HOSTED_MODEL_CREDITS_REQUIRED_ERROR =
   "Connect your own API key in Models or choose Rakazo credits in Billing.";
@@ -105,9 +112,14 @@ const MODEL_CONNECTION_RUN_ERRORS = new Set([
   MISSING_MODEL_RUN_ERROR,
   HOSTED_MODEL_CREDITS_REQUIRED_ERROR,
 ]);
+const JAILBREAK_RUN_ERRORS = new Set([
+  JAILBREAK_MODEL_UNAVAILABLE_ERROR,
+  JAILBREAK_MODEL_MISSING_ERROR,
+]);
 const APP_RUN_ERRORS = new Set([
   ...MODEL_OUTPUT_RUN_ERRORS,
   ...MODEL_CONNECTION_RUN_ERRORS,
+  ...JAILBREAK_RUN_ERRORS,
   MODEL_ACCESS_REQUIRED_RUN_ERROR,
   COMPUTER_RATE_LIMIT_ERROR,
   COMPUTER_ALLOWANCE_USED_ERROR,
@@ -265,7 +277,9 @@ export function normalizeRunError(
       ? { summary: details, details, kind: "output" }
       : MODEL_CONNECTION_RUN_ERRORS.has(trimmed)
         ? { summary: translate(trimmed), details, recovery: "connection" }
-        : { summary: details, details };
+        : JAILBREAK_RUN_ERRORS.has(trimmed)
+          ? { summary: translate(trimmed), details, recovery: "model" }
+          : { summary: details, details };
   }
   if (trimmed === MODEL_OUTPUT_CUT_ERROR) {
     return {

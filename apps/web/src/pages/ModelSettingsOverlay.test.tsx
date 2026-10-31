@@ -135,6 +135,7 @@ vi.mock("@rakazo/ui-web", async (importOriginal) => {
   };
 });
 
+import { requestModelSettingsFocus } from "../lib/model-settings-focus";
 import { rpc } from "../lib/rpc";
 import { ModelSettingsOverlay } from "./ModelSettingsOverlay";
 
@@ -239,7 +240,7 @@ async function click(element: Element | null | undefined) {
   });
 }
 
-function section(role: "main" | "approval") {
+function section(role: "main" | "approval" | "jailbreak") {
   const found = document.querySelector(`[data-testid="model-role-${role}"]`);
   if (!found) throw new Error(`Missing ${role} model list`);
   return found;
@@ -250,7 +251,7 @@ function pickerOptions() {
   return [...document.querySelectorAll<HTMLElement>('[role="option"]')].map(optionName);
 }
 
-async function openPicker(label: string, role: "main" | "approval" = "main") {
+async function openPicker(label: string, role: "main" | "approval" | "jailbreak" = "main") {
   await click(section(role).querySelector(`button[aria-label="${label}"]`));
 }
 
@@ -261,7 +262,11 @@ async function choose(option: string) {
 }
 
 /** Picks a model or a not-connected provider from one of the list's pickers. */
-async function pick(label: string, option: string, role: "main" | "approval" = "main") {
+async function pick(
+  label: string,
+  option: string,
+  role: "main" | "approval" | "jailbreak" = "main",
+) {
   await openPicker(label, role);
   await choose(option);
 }
@@ -492,6 +497,9 @@ it("labels the empty main slot by what runs there", async () => {
     expect(
       section("approval").querySelector('[data-testid="model-role-default"]')?.textContent,
     ).toBe("Choose a model");
+    expect(
+      section("jailbreak").querySelector('[data-testid="model-role-default"]')?.textContent,
+    ).toBe("Choose a model");
   } finally {
     await view.unmount();
   }
@@ -597,6 +605,8 @@ it("shows a Space only its own role lists and makes a new connection its main mo
   try {
     expect(view.container.querySelector('[data-testid="model-role-main"]')).not.toBeNull();
     expect(view.container.querySelector('[data-testid="model-role-approval"]')).not.toBeNull();
+    expect(view.container.querySelector('[data-testid="model-role-jailbreak"]')).not.toBeNull();
+    expect(view.container.querySelector("#jailbreak-models")).not.toBeNull();
     // Connections are the account's, so a Space does not list or add them.
     expect(view.container.querySelector('[data-testid="model-providers"]')).toBeNull();
     expect(models.role).toHaveBeenCalledWith(
@@ -609,6 +619,38 @@ it("shows a Space only its own role lists and makes a new connection its main mo
     expect(models.connect).toHaveBeenCalledWith(
       expect.objectContaining({ provider: "deepseek", makeDefault: true, scope: "space" }),
     );
+  } finally {
+    await view.unmount();
+  }
+});
+
+it("saves a jailbreak model independently of main", async () => {
+  models.credentials.mockResolvedValue([deepseekCredential]);
+  const view = await renderSettings();
+  try {
+    await pick("Change Jailbreak models", "DeepSeek Chat", "jailbreak");
+    expect(models.setRole).toHaveBeenCalledWith(
+      expect.objectContaining({
+        role: "jailbreak",
+        primary: expect.objectContaining({ provider: "deepseek", modelId: "deepseek-chat" }),
+      }),
+      expect.anything(),
+    );
+  } finally {
+    await view.unmount();
+  }
+});
+
+it("scrolls to jailbreak models when that settings section is requested", async () => {
+  const scrolled: string[] = [];
+  Element.prototype.scrollIntoView = function scrollIntoView(this: Element) {
+    if (this.id) scrolled.push(this.id);
+  };
+  requestModelSettingsFocus("jailbreak");
+  const view = await renderSettings();
+  try {
+    expect(view.container.querySelector("#jailbreak-models")).not.toBeNull();
+    expect(scrolled).toContain("jailbreak-models");
   } finally {
     await view.unmount();
   }

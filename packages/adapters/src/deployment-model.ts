@@ -2,7 +2,7 @@ import { getEnvApiKey } from "@earendil-works/pi-ai/compat";
 import type { ModelUsageLookup } from "@rakazo/adapter-kit";
 import { OpenRouterUsageLookup } from "./openrouter-usage.js";
 
-export const DEFAULT_OPENROUTER_MODEL_ID = "openai/gpt-6-luna";
+export const DEFAULT_OPENROUTER_MODEL_ID = "x-ai/grok-4.7";
 
 /**
  * What Pi reports for a provider that authenticates from the host instead of a key: an AWS

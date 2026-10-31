@@ -17,7 +17,7 @@ import {
   truncateSlashDescription,
   updateComposerMentionBindings,
 } from "@rakazo/core";
-import { Button } from "@rakazo/ui-web";
+import { Button, Switch } from "@rakazo/ui-web";
 import { ArrowUp, Box, Paperclip, Plus, Settings, Square, X } from "lucide-react";
 import type { ClipboardEvent, DragEvent, RefObject } from "react";
 import { memo, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
@@ -64,6 +64,11 @@ export const Composer = memo(function Composer({
   onDraftEdited,
   onOpenModels,
   onOpenConnections,
+  jailbreakEnabled,
+  jailbreakConfigured,
+  jailbreakModelLabel,
+  onJailbreakChange,
+  onOpenJailbreakSettings,
   runError,
   runErrorId,
   onRunErrorPresented,
@@ -97,6 +102,11 @@ export const Composer = memo(function Composer({
   onDraftEdited?: () => void;
   onOpenModels: () => void;
   onOpenConnections: () => void;
+  jailbreakEnabled?: boolean;
+  jailbreakConfigured?: boolean;
+  jailbreakModelLabel?: string | null;
+  onJailbreakChange?: (enabled: boolean) => void;
+  onOpenJailbreakSettings?: () => void;
   runError: string | null;
   runErrorId: string | null;
   onRunErrorPresented: (runId: string) => void;
@@ -718,6 +728,40 @@ export const Composer = memo(function Composer({
               </button>
             );
           })}
+        </div>
+      ) : null}
+      {onJailbreakChange || onOpenJailbreakSettings ? (
+        <div data-testid="composer-jailbreak" className="mb-2 flex items-center gap-2 ps-1">
+          {jailbreakConfigured || jailbreakEnabled ? (
+            <>
+              <Switch
+                size="sm"
+                checked={Boolean(jailbreakEnabled)}
+                disabled={disabled}
+                aria-label={
+                  jailbreakEnabled && jailbreakModelLabel
+                    ? t`Jailbreak, ${jailbreakModelLabel}`
+                    : t`Jailbreak`
+                }
+                onCheckedChange={(checked) => onJailbreakChange?.(checked)}
+              />
+              <span className="min-w-0 truncate text-[12.5px] text-muted-foreground">
+                {jailbreakEnabled && jailbreakModelLabel
+                  ? t`Jailbreak · ${jailbreakModelLabel}`
+                  : t`Jailbreak`}
+              </span>
+            </>
+          ) : (
+            <button
+              type="button"
+              data-testid="composer-jailbreak-settings"
+              disabled={disabled}
+              onClick={() => onOpenJailbreakSettings?.()}
+              className="text-[12.5px] text-muted-foreground hover:text-foreground"
+            >
+              {t`Jailbreak`}
+            </button>
+          )}
         </div>
       ) : null}
       <div

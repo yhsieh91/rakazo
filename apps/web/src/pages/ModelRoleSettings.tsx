@@ -266,7 +266,11 @@ export function ModelRoleSettings({
   );
 
   return (
-    <section className="mb-8" data-testid={`model-role-${role}`}>
+    <section
+      id={role === "jailbreak" ? "jailbreak-models" : undefined}
+      className="mb-8"
+      data-testid={`model-role-${role}`}
+    >
       <h3 className="mb-2.5 text-heading3 font-medium text-foreground">{title}</h3>
       <ol className="divide-y divide-border rounded-xl border border-border">
         {primary ? null : (

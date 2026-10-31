@@ -17,7 +17,7 @@ const savedEndpoint = "https://models.example.test/v1";
 const { push, back, params, rpcCalls, saved } = vi.hoisted(() => ({
   push: vi.fn(),
   back: vi.fn(),
-  params: {} as { requestId?: string; spaceId?: string },
+  params: {} as { requestId?: string; spaceId?: string; focus?: string },
   rpcCalls: [] as [string, unknown, { requestContext?: { headers: object } }?][],
   saved: {
     baseUrl: "https://models.example.test/v1",
@@ -141,7 +141,15 @@ vi.mock("react-native", () => {
     Linking: { openURL: vi.fn() },
     StyleSheet: { create: (styles: unknown) => styles, hairlineWidth: 1 },
     ScrollView: view,
-    View: view,
+    View: ({
+      children,
+      testID,
+      nativeID,
+    }: {
+      children?: ReactNode;
+      testID?: string;
+      nativeID?: string;
+    }) => createElement("div", { "data-testid": testID, id: nativeID }, children),
     Text: view,
     Pressable: ({ children, onPress }: { children?: ReactNode; onPress: () => void }) =>
       createElement("button", { type: "button", onClick: onPress }, children),
@@ -194,6 +202,7 @@ beforeEach(async () => {
   queryClient.clear();
   rpcCalls.length = 0;
   delete params.spaceId;
+  delete params.focus;
   back.mockClear();
   container = document.createElement("div");
   document.body.appendChild(container);
@@ -275,6 +284,21 @@ async function notConnectedChoices() {
   const route = push.mock.calls.at(-1)?.[0] as { params: { requestId: string } };
   return modelPickerRequest(route.params.requestId)!.connectChoices ?? [];
 }
+
+it("lands on the jailbreak models section when opened with that focus", async () => {
+  params.focus = "jailbreak";
+  try {
+    await remount(async () => {
+      await act(async () => root.render(createElement(Models)));
+    });
+    const section = container.querySelector("#jailbreak-models");
+    expect(section).not.toBeNull();
+    expect(section?.getAttribute("data-testid")).toBe("model-role-jailbreak");
+    expect(container.textContent).toContain("Jailbreak models");
+  } finally {
+    delete params.focus;
+  }
+});
 
 it("offers deployment-funded providers and Ollama Cloud once among providers to connect", async () => {
   expect((await notConnectedChoices()).map((choice) => choice.label)).toEqual([

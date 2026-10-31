@@ -20,6 +20,10 @@ export const ZH_MESSAGES: Record<string, string> = {
   Block: "阻止",
   "Add a model in Settings to use this.": "请在设置中添加模型后再使用。",
   "Approval model": "审批模型",
+  "Jailbreak models": "越狱模型",
+  Jailbreak: "越狱",
+  "Jailbreak · {model}": "越狱 · {model}",
+  "Jailbreak, {model}": "越狱，{model}",
   "Main model": "主模型",
   "Add fallback": "添加备用模型",
   "Manage {provider}": "管理 {provider}",
@@ -98,6 +102,9 @@ export const ZH_MESSAGES: Record<string, string> = {
   "Your Anthropic": "你的 Anthropic",
   "Your model provider": "你的模型提供商",
   "Connect a model in Settings before running bots.": "运行机器人前，请先在设置中连接模型。",
+  "None of the jailbreak models could start. Choose one in Settings → Models.":
+    "越狱模型都无法启动。请在设置 → 模型中选择一个。",
+  "Choose a jailbreak model in Settings → Models.": "请在设置 → 模型中选择越狱模型。",
   "Connect your own API key in Models or choose Rakazo credits in Billing.":
     "请在“模型”中连接你自己的 API 密钥，或在“账单”中选择 Rakazo 额度。",
   "The model provider returned an error.": "模型提供商返回了错误。",
