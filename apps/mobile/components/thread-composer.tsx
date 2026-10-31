@@ -42,6 +42,7 @@ import { useMobileTokens, useResolvedAppearance } from "../lib/native";
 import type { ComposerSnapshot } from "../lib/thread-feedback";
 import { GlassSurface } from "./glass-surface";
 import { NativeSymbol } from "./native-symbol";
+import { ThreadJailbreakRow } from "./thread/thread-jailbreak";
 
 type NativeEdit = {
   beforeText: string;
@@ -80,6 +81,11 @@ type ThreadComposerProps = {
   stop: () => Promise<void>;
   startVoiceCall: () => Promise<void>;
   onSlashAction: (action: SlashActionId) => void;
+  jailbreakEnabled?: boolean;
+  jailbreakConfigured?: boolean;
+  jailbreakModelLabel?: string | null;
+  onJailbreakChange?: (enabled: boolean) => void;
+  onOpenJailbreakSettings?: () => void;
 };
 
 export function ThreadComposer({
@@ -103,6 +109,11 @@ export function ThreadComposer({
   stop,
   startVoiceCall,
   onSlashAction,
+  jailbreakEnabled,
+  jailbreakConfigured,
+  jailbreakModelLabel,
+  onJailbreakChange,
+  onOpenJailbreakSettings,
 }: ThreadComposerProps) {
   const tokens = useMobileTokens();
   const mentionStyle = (mention: ComposerMention) => ({
@@ -450,6 +461,16 @@ export function ThreadComposer({
             </Pressable>
           ))}
         </ScrollView>
+      ) : null}
+      {onJailbreakChange || onOpenJailbreakSettings ? (
+        <ThreadJailbreakRow
+          configured={Boolean(jailbreakConfigured)}
+          disabled={sending}
+          enabled={Boolean(jailbreakEnabled)}
+          modelLabel={jailbreakModelLabel ?? null}
+          onChange={(enabled) => onJailbreakChange?.(enabled)}
+          onOpenSettings={() => onOpenJailbreakSettings?.()}
+        />
       ) : null}
       <View style={{ flexDirection: "row", alignItems: "flex-end", gap: 10, marginTop: 8 }}>
         <MenuView

@@ -106,14 +106,31 @@ describe("ThreadJailbreakRow", () => {
     expect(onOpenSettings).toHaveBeenCalledOnce();
   });
 
+  it("shows Jailbreak without the model name while off", () => {
+    render({
+      configured: true,
+      enabled: false,
+      modelLabel: "Dolphin Mistral 24B",
+    });
+    expect(container!.textContent).toBe("Jailbreak");
+    expect(container!.textContent).not.toContain("Dolphin Mistral 24B");
+    expect(container!.querySelector('[role="switch"]')?.getAttribute("aria-checked")).toBe("false");
+    expect(container!.querySelector('[role="switch"]')?.getAttribute("aria-label")).toBe(
+      "Jailbreak",
+    );
+  });
+
   it("shows the model name while on", () => {
     render({
       configured: true,
       enabled: true,
       modelLabel: "Dolphin Mistral 24B",
     });
-    expect(container!.textContent).toContain("Dolphin Mistral 24B");
+    expect(container!.textContent).toContain("Jailbreak · Dolphin Mistral 24B");
     expect(container!.querySelector('[role="switch"]')?.getAttribute("aria-checked")).toBe("true");
+    expect(container!.querySelector('[role="switch"]')?.getAttribute("aria-label")).toBe(
+      "Jailbreak, Dolphin Mistral 24B",
+    );
   });
 
   it("keeps the off switch when jailbreak is on and no model is configured", () => {

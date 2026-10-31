@@ -6,7 +6,7 @@ import type { RefObject } from "react";
 import { useCallback, useMemo, useState } from "react";
 import type { MobileSnapshot } from "./api";
 import { rpc } from "./api";
-import { openModelSettings } from "./model-settings";
+import { openJailbreakModelSettings } from "./model-settings";
 
 export type JailbreakThreadTarget = { botId: string } | { groupId: string };
 
@@ -86,6 +86,6 @@ export function useThreadJailbreak({
     configured: Boolean(primary),
     modelLabel,
     setEnabled,
-    openSettings: openModelSettings,
+    openSettings: openJailbreakModelSettings,
   };
 }

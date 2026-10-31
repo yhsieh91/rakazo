@@ -10,7 +10,7 @@ import { isCancelledError, useQuery } from "@tanstack/react-query";
 import type { Href } from "expo-router";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LoadFailure } from "../../components/load-failure";
 import { ModelProviders } from "../../components/model-providers";
@@ -39,7 +39,8 @@ const noCredentials: MobileModelCredential[] = [];
  * Opened with a Space, it edits that Space's override instead of the account's.
  */
 export default function Models() {
-  const params = useLocalSearchParams<{ spaceId?: string }>();
+  const params = useLocalSearchParams<{ spaceId?: string; focus?: string }>();
+  const scrollRef = useRef<ScrollView>(null);
   const target = useMemo(() => settingsTarget(params.spaceId), [params.spaceId]);
   // A Space's override is read from that Space even when another one is selected.
   const spaceId = target.scope === "space" ? target.spaceId : undefined;
@@ -245,6 +246,7 @@ export default function Models() {
   return (
     <SafeAreaView edges={["bottom"]} style={styles.screen}>
       <ScrollView
+        ref={scrollRef}
         style={sideInsets}
         contentContainerStyle={styles.content}
         contentInsetAdjustmentBehavior="automatic"
@@ -278,12 +280,24 @@ export default function Models() {
               title={t("Approval model")}
               defaultLabel={t("Choose a model")}
             />
-            <ModelRoleSettings
-              {...shared}
-              modelRole="jailbreak"
-              title={t("Jailbreak models")}
-              defaultLabel={t("Choose a model")}
-            />
+            <View
+              nativeID="jailbreak-models"
+              testID="model-role-jailbreak"
+              onLayout={(event) => {
+                if (params.focus !== "jailbreak") return;
+                scrollRef.current?.scrollTo({
+                  y: event.nativeEvent.layout.y,
+                  animated: true,
+                });
+              }}
+            >
+              <ModelRoleSettings
+                {...shared}
+                modelRole="jailbreak"
+                title={t("Jailbreak models")}
+                defaultLabel={t("Choose a model")}
+              />
+            </View>
             {/* Connections are the account's in every Space, so a Space's override lists only its models. */}
             {target.scope === "account" ? (
               <ModelProviders

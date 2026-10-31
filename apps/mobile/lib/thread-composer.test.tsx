@@ -116,6 +116,7 @@ vi.mock("react-native", () => {
       accessible,
       disabled,
       style,
+      testID,
     }: {
       children?: ReactNode;
       onPress: () => void;
@@ -123,6 +124,7 @@ vi.mock("react-native", () => {
       accessible?: boolean;
       disabled?: boolean;
       style?: object;
+      testID?: string;
     }) =>
       createElement(
         "button",
@@ -131,6 +133,7 @@ vi.mock("react-native", () => {
           onClick: onPress,
           "aria-label": accessibilityLabel,
           "data-accessible": accessible,
+          "data-testid": testID,
           disabled,
           "data-style": JSON.stringify(style),
         },
@@ -192,6 +195,30 @@ vi.mock("../components/glass-surface", () => ({
     createElement("div", { "data-glass": shape, "data-style": JSON.stringify(style) }, children),
 }));
 vi.mock("../components/native-symbol", () => ({ NativeSymbol: () => null }));
+vi.mock("../components/native-switch", () => ({
+  NativeSwitch: ({
+    value,
+    onValueChange,
+    accessibilityLabel,
+    disabled,
+  }: {
+    value: boolean;
+    onValueChange: (value: boolean) => void;
+    accessibilityLabel?: string;
+    disabled?: boolean;
+  }) =>
+    createElement("button", {
+      type: "button",
+      role: "switch",
+      "aria-checked": String(value),
+      "aria-label": accessibilityLabel,
+      disabled,
+      onClick: () => onValueChange(!value),
+    }),
+}));
+vi.mock("./appearance", () => ({
+  mobileTokens: () => ({ mutedForeground: "#888" }),
+}));
 vi.mock("./native", () => ({ useMobileTokens: () => ({}), useResolvedAppearance: () => "light" }));
 vi.mock("./i18n", () => ({ useI18n: () => ({ t: (text: string) => text }) }));
 
@@ -1012,6 +1039,71 @@ describe("thread composer isolation", () => {
       expect(style(button).marginBottom).toBe(inset);
       expect(capsule.paddingEnd).toBe(inset);
     }
+  });
+
+  describe("jailbreak toggle", () => {
+    it("links to settings when no jailbreak model is configured", () => {
+      const onOpenJailbreakSettings = vi.fn();
+      render({
+        jailbreakConfigured: false,
+        jailbreakEnabled: false,
+        onJailbreakChange: vi.fn(),
+        onOpenJailbreakSettings,
+      });
+      const button = container.querySelector<HTMLElement>(
+        '[data-testid="composer-jailbreak-settings"]',
+      );
+      expect(button?.textContent).toBe("Jailbreak");
+      act(() => button!.click());
+      expect(onOpenJailbreakSettings).toHaveBeenCalledOnce();
+    });
+
+    it("shows Jailbreak while off", () => {
+      render({
+        jailbreakConfigured: true,
+        jailbreakEnabled: false,
+        jailbreakModelLabel: "Dolphin Mistral 24B",
+        onJailbreakChange: vi.fn(),
+        onOpenJailbreakSettings: vi.fn(),
+      });
+      const row = container.querySelector('[data-testid="composer-jailbreak"]');
+      expect(row?.textContent).toBe("Jailbreak");
+      expect(row?.querySelector('[role="switch"]')?.getAttribute("aria-checked")).toBe("false");
+      expect(container.querySelector('[data-testid="composer-jailbreak-settings"]')).toBeNull();
+    });
+
+    it("shows the jailbreak model name while the conversation toggle is on", () => {
+      render({
+        jailbreakConfigured: true,
+        jailbreakEnabled: true,
+        jailbreakModelLabel: "Dolphin Mistral 24B",
+        onJailbreakChange: vi.fn(),
+        onOpenJailbreakSettings: vi.fn(),
+      });
+      const row = container.querySelector('[data-testid="composer-jailbreak"]');
+      expect(row?.textContent).toBe("Jailbreak · {model}");
+      expect(row?.querySelector('[role="switch"]')?.getAttribute("aria-checked")).toBe("true");
+      expect(row?.querySelector('[role="switch"]')?.getAttribute("aria-label")).toBe(
+        "Jailbreak, {model}",
+      );
+    });
+
+    it("keeps the off switch when jailbreak is on and no model is configured", () => {
+      const onJailbreakChange = vi.fn();
+      render({
+        jailbreakConfigured: false,
+        jailbreakEnabled: true,
+        onJailbreakChange,
+        onOpenJailbreakSettings: vi.fn(),
+      });
+      expect(container.querySelector('[data-testid="composer-jailbreak-settings"]')).toBeNull();
+      act(() => {
+        container
+          .querySelector<HTMLElement>('[data-testid="composer-jailbreak"] [role="switch"]')!
+          .click();
+      });
+      expect(onJailbreakChange).toHaveBeenCalledWith(false);
+    });
   });
 
   it("keeps right-to-left text clear of the call and send pills", () => {

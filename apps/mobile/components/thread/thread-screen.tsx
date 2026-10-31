@@ -63,7 +63,6 @@ import { createThreadHeaderStyles } from "../thread-header-styles";
 import { QuoteSheet } from "./quote-sheet";
 import { ThreadComposerDock } from "./thread-composer-dock";
 import { BotActionsModal, useThreadHeader } from "./thread-header";
-import { ThreadJailbreakRow } from "./thread-jailbreak";
 import { LoadEarlierButton, ThreadWorkingFooter } from "./thread-list-controls";
 import { ThreadMessageList } from "./thread-message-list";
 import { useLatestRowActions, useThreadRows } from "./thread-rows";
@@ -601,18 +600,6 @@ export function Thread({ sessionEpoch, userId }: { sessionEpoch: number; userId:
             attachments.setPendingAttachments((current) => current.filter((item) => item.id !== id))
           }
         >
-          <ThreadJailbreakRow
-            configured={jailbreak.configured}
-            disabled={composer.sending || attachments.shareImporting}
-            enabled={jailbreak.enabled}
-            modelLabel={jailbreak.modelLabel}
-            onChange={(enabled) => {
-              void jailbreak.setEnabled(enabled).then((result) => {
-                if (result.missing) jailbreak.openSettings();
-              });
-            }}
-            onOpenSettings={jailbreak.openSettings}
-          />
           <ThreadComposer
             key={threadKey}
             ref={composer.composerRef}
@@ -635,6 +622,15 @@ export function Thread({ sessionEpoch, userId }: { sessionEpoch: number; userId:
             stop={composer.stop}
             startVoiceCall={startVoiceCall}
             onSlashAction={composer.runSlashAction}
+            jailbreakConfigured={jailbreak.configured}
+            jailbreakEnabled={jailbreak.enabled}
+            jailbreakModelLabel={jailbreak.modelLabel}
+            onJailbreakChange={(enabled) => {
+              void jailbreak.setEnabled(enabled).then((result) => {
+                if (result.missing) jailbreak.openSettings();
+              });
+            }}
+            onOpenJailbreakSettings={jailbreak.openSettings}
           />
         </ThreadComposerDock>
         {botActionsOpen ? <BotActionsModal actions={botActions} onClose={closeBotActions} /> : null}
