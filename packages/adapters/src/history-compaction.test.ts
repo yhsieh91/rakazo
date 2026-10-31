@@ -484,7 +484,7 @@ describe("compactHistory", () => {
     expect(request.tools).toEqual([]);
     expect(request.model).toEqual({
       provider: "openrouter",
-      id: "openai/gpt-6-luna",
+      id: "x-ai/grok-4.7",
       apiKey: "openrouter-key",
     });
     expect(request.prompt).toContain("message 0");

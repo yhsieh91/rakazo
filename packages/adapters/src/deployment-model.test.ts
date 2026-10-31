@@ -25,7 +25,7 @@ describe("resolveDeploymentModel", () => {
     const both = { OPENROUTER_API_KEY: "or-key", ANTHROPIC_API_KEY: "sk-ant-key" };
     expect(resolveDeploymentModel(both)).toEqual({
       provider: "openrouter",
-      model: "openai/gpt-6-luna",
+      model: "x-ai/grok-4.7",
       key: "or-key",
       configured: true,
       hostCredentials: false,
