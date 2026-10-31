@@ -166,6 +166,20 @@ describe("shared role editor", () => {
     expect(saved.primary).toBeNull();
     expect(container.querySelector('[data-testid="model-role-default"]')).not.toBeNull();
   });
+  it("saves a jailbreak model independently of main", async () => {
+    await render({ modelRole: "jailbreak", title: "Jailbreak models" });
+    await pick("Change Jailbreak models", "Chat");
+    expect(api.setRole).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        role: "jailbreak",
+        expectedUserId: "user",
+        primary: pin(chat),
+        backups: [],
+      }),
+      { context: { spaceId: "space" } },
+    );
+    expect(container.querySelector("#jailbreak-models")).not.toBeNull();
+  });
   it("reopens on the cached list without a spinner while it refreshes", async () => {
     saved = { primary: chat, backups: [mini] };
     await render();

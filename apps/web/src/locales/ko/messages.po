@@ -1285,6 +1285,11 @@ msgstr "확인 중…"
 msgid "Choose a bot shape, color, or upload an image"
 msgstr "봇 모양과 색을 고르거나 이미지를 업로드하세요"
 
+#. js-lingui-explicit-id
+#: src/lib/run-error.ts
+msgid "Choose a jailbreak model in Settings → Models."
+msgstr ""
+
 #: src/pages/ModelSettingsOverlay.tsx
 #: src/pages/shell/composer-error.tsx
 msgid "Choose a model"
@@ -3344,6 +3349,22 @@ msgstr "이 섹션의 Bot과 그룹은 유지되며 섹션에서 빠집니다."
 msgid "Its conversation, files, and routines will be permanently deleted. Bots it created stay in your list."
 msgstr "대화, 파일, 자동 실행이 영구 삭제됩니다. 이 Bot이 만든 다른 Bot은 목록에 남습니다."
 
+#: src/pages/shell/composer.tsx
+msgid "Jailbreak"
+msgstr ""
+
+#: src/pages/shell/composer.tsx
+msgid "Jailbreak · {jailbreakModelLabel}"
+msgstr ""
+
+#: src/pages/ModelSettingsOverlay.tsx
+msgid "Jailbreak models"
+msgstr ""
+
+#: src/pages/shell/composer.tsx
+msgid "Jailbreak, {jailbreakModelLabel}"
+msgstr ""
+
 #: src/pages/shell/transcript.tsx
 msgid "Jump to latest"
 msgstr "최신 메시지로 이동"
@@ -4097,6 +4118,11 @@ msgstr ""
 #: src/pages/RoutineEditor.tsx
 msgid "No trigger"
 msgstr "트리거 없음"
+
+#. js-lingui-explicit-id
+#: src/lib/run-error.ts
+msgid "None of the jailbreak models could start. Choose one in Settings → Models."
+msgstr ""
 
 #: src/lib/ticket-priority.ts
 msgid "Normal"

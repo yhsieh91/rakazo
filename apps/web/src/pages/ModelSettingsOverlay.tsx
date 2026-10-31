@@ -29,6 +29,10 @@ import {
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { ModelCredential } from "../lib/model-auth";
+import {
+  subscribeModelSettingsFocus,
+  takeModelSettingsFocus,
+} from "../lib/model-settings-focus";
 import type { ModelRoleConnectIntent } from "./ModelRoleSettings";
 import { ModelRoleSettings } from "./ModelRoleSettings";
 import { CompatibleModelFields } from "./model-settings/compatible-model-fields";
@@ -94,6 +98,16 @@ export function ModelSettingsOverlay({
   useEffect(() => {
     panelRef.current?.scrollIntoView?.({ block: "nearest" });
   }, [connectionAt]);
+  useEffect(() => {
+    const reveal = () => {
+      const section = document.getElementById("jailbreak-models");
+      if (!section) return;
+      if (takeModelSettingsFocus() !== "jailbreak") return;
+      section.scrollIntoView({ block: "start" });
+    };
+    reveal();
+    return subscribeModelSettingsFocus(reveal);
+  }, [me]);
 
   const providers: ConnectableProvider[] = groups
     .filter((group) => !credentialByProvider.has(group.id))
@@ -328,6 +342,24 @@ export function ModelSettingsOverlay({
               openConnection({ id, name: id }, null, credentialId, "approval")
             }
             panel={connectionAt === "approval" ? panelFor(true) : null}
+          />
+          <ModelRoleSettings
+            userId={me.userId}
+            spaceId={me.spaceId}
+            scope={scope}
+            credentials={credentials}
+            modelRole="jailbreak"
+            title={t`Jailbreak models`}
+            defaultLabel={t`Choose a model`}
+            providers={providers}
+            providerLabel={providerLabel}
+            onConnect={(next, intent) => openConnection(next, intent, null, "jailbreak")}
+            onManage={(id, credentialId) =>
+              openConnection({ id, name: id }, null, credentialId, "jailbreak")
+            }
+            panel={connectionAt === "jailbreak" ? panelFor(true) : null}
+            thinking
+            onChanged={() => void refresh()}
           />
           {scope === "space" ? null : (
             <ProvidersSection

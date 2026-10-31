@@ -1285,6 +1285,11 @@ msgstr "確認中…"
 msgid "Choose a bot shape, color, or upload an image"
 msgstr "ボットの形や色を選ぶか、画像をアップロード"
 
+#. js-lingui-explicit-id
+#: src/lib/run-error.ts
+msgid "Choose a jailbreak model in Settings → Models."
+msgstr ""
+
 #: src/pages/ModelSettingsOverlay.tsx
 #: src/pages/shell/composer-error.tsx
 msgid "Choose a model"
@@ -3344,6 +3349,22 @@ msgstr "セクション内のボットとグループは削除されず、セク
 msgid "Its conversation, files, and routines will be permanently deleted. Bots it created stay in your list."
 msgstr "会話、ファイル、ルーティンは完全に削除されます。作成したボットはリストに残ります。"
 
+#: src/pages/shell/composer.tsx
+msgid "Jailbreak"
+msgstr ""
+
+#: src/pages/shell/composer.tsx
+msgid "Jailbreak · {jailbreakModelLabel}"
+msgstr ""
+
+#: src/pages/ModelSettingsOverlay.tsx
+msgid "Jailbreak models"
+msgstr ""
+
+#: src/pages/shell/composer.tsx
+msgid "Jailbreak, {jailbreakModelLabel}"
+msgstr ""
+
 #: src/pages/shell/transcript.tsx
 msgid "Jump to latest"
 msgstr "最新へ移動"
@@ -4097,6 +4118,11 @@ msgstr "チケットはまだありません"
 #: src/pages/RoutineEditor.tsx
 msgid "No trigger"
 msgstr "トリガーなし"
+
+#. js-lingui-explicit-id
+#: src/lib/run-error.ts
+msgid "None of the jailbreak models could start. Choose one in Settings → Models."
+msgstr ""
 
 #: src/lib/ticket-priority.ts
 msgid "Normal"

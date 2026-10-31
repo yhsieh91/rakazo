@@ -53,6 +53,7 @@ import {
 } from "../lib/composer-enter-to-send-pref";
 import { computersAreUnavailable } from "../lib/computer-sandbox";
 import { desktopBridge } from "../lib/desktop";
+import { requestModelSettingsFocus } from "../lib/model-settings-focus";
 import { markAfterPaint, markOnce } from "../lib/performance";
 import { usePreloadRecoveryState } from "../lib/preload-recovery";
 import { lastChatKey, lastChatOf, queryClient, spaceQueries, spaceSeedKey } from "../lib/query";
@@ -90,6 +91,7 @@ import { useChatRead } from "./shell/use-chat-read";
 import { useComposerActions } from "./shell/use-composer-actions";
 import { useComposerMentions } from "./shell/use-composer-mentions";
 import { useComputerControls, useComputerState } from "./shell/use-computer";
+import { useJailbreakToggle } from "./shell/use-jailbreak-toggle";
 import { useMessageJump } from "./shell/use-message-jump";
 import { useMobileSidebar } from "./shell/use-mobile-sidebar";
 import { useReadAloud } from "./shell/use-read-aloud";
@@ -413,6 +415,22 @@ function SpaceShell() {
     : snapshot?.botId === active?.id
       ? snapshot
       : null;
+  const jailbreakTarget = inGroup
+    ? groupId
+      ? { groupId }
+      : null
+    : active?.id
+      ? { botId: active.id }
+      : null;
+  const jailbreak = useJailbreakToggle({
+    rpc,
+    queries,
+    userId,
+    target: jailbreakTarget,
+    snapshot: activeSnapshot,
+    updateSnapshot: thread.updateSnapshot,
+    settingsOpen: overlay?.kind === "settings" && overlay.section === "models",
+  });
   const currentRuns = activeThreadRuns(activeSnapshot);
   const answerableAskIds = useMemo(() => answerableAskMessageIds(activeSnapshot), [activeSnapshot]);
   const dismissableAskIds = useMemo(
@@ -1000,6 +1018,21 @@ function SpaceShell() {
                 } else openSettings("models");
               }}
               onOpenConnections={() => openSettings("models")}
+              jailbreakEnabled={jailbreak.enabled}
+              jailbreakConfigured={jailbreak.configured}
+              jailbreakModelLabel={jailbreak.modelLabel}
+              onJailbreakChange={(enabled) => {
+                void jailbreak.setEnabled(enabled).then((result) => {
+                  if (result.missing) {
+                    requestModelSettingsFocus("jailbreak");
+                    openSettings("models");
+                  }
+                });
+              }}
+              onOpenJailbreakSettings={() => {
+                requestModelSettingsFocus("jailbreak");
+                openSettings("models");
+              }}
               runError={composer.displayedRunError}
               runErrorId={composer.displayedRunErrorId}
               onRunErrorPresented={composer.handleRunErrorPresented}

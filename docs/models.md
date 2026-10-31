@@ -33,6 +33,18 @@ costs more, and helps on hard, multi-step work.
 **Approval model** is the model that checks bot actions when approvals are set to **Auto**. A fast,
 inexpensive model works well here. See [Approvals](./approvals.md).
 
+## Jailbreak models
+
+**Jailbreak models** is an ordered list of models for one conversation at a time. Add one or more
+from a connected provider, drag to set the order, and keep the one that should run first. In the
+chat composer, **Jailbreak** switches that conversation onto this list; turning it off returns that
+conversation to the main model. Other conversations, routines, and the approval model stay as they
+were.
+
+If the first jailbreak model cannot start, the next one in the list is tried. The run does not fall
+back to the main model. Choose a jailbreak model in **Settings → Models** before turning the toggle
+on.
+
 ## Per bot and per routine
 
 To give one bot a different model, open its settings, expand **Advanced**, and choose its **Model**

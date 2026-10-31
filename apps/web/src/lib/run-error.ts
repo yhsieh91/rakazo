@@ -36,6 +36,18 @@ export const translateRunError: RunErrorTranslator = (message, values) => {
         message: "Connect a model in Settings before running bots.",
         values,
       });
+    case "None of the jailbreak models could start. Choose one in Settings → Models.":
+      return i18n._({
+        id: "None of the jailbreak models could start. Choose one in Settings → Models.",
+        message: "None of the jailbreak models could start. Choose one in Settings → Models.",
+        values,
+      });
+    case "Choose a jailbreak model in Settings → Models.":
+      return i18n._({
+        id: "Choose a jailbreak model in Settings → Models.",
+        message: "Choose a jailbreak model in Settings → Models.",
+        values,
+      });
     case "Connect your own API key in Models or choose Rakazo credits in Billing.":
       return i18n._({
         id: "Connect your own API key in Models or choose Rakazo credits in Billing.",

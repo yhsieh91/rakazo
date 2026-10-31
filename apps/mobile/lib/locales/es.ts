@@ -22,6 +22,7 @@ export const ES_MESSAGES: Record<string, string> = {
   Block: "Bloquear",
   "Add a model in Settings to use this.": "Agrega un modelo en Configuración para usarlo.",
   "Approval model": "Modelo de aprobación",
+  "Jailbreak models": "Modelos jailbreak",
   "Main model": "Modelo principal",
   "Add fallback": "Agregar modelo de respaldo",
   "Manage {provider}": "Gestionar {provider}",

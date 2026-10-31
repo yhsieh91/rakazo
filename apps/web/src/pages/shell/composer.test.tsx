@@ -1330,3 +1330,50 @@ it("accepts file drops in transparent padding only during file drags", () => {
   dispatchDrag(window, "dragend", dataTransfer);
   expect(fieldset.classList.contains("pointer-events-none")).toBe(true);
 });
+
+describe("composer jailbreak toggle", () => {
+  it("links to jailbreak settings when no jailbreak model is configured", () => {
+    const onOpenJailbreakSettings = vi.fn();
+    renderComposer(async () => true, {
+      jailbreakConfigured: false,
+      onOpenJailbreakSettings,
+      onJailbreakChange: vi.fn(),
+    });
+    const button = container!.querySelector<HTMLButtonElement>(
+      '[data-testid="composer-jailbreak-settings"]',
+    );
+    expect(button?.textContent).toBe("Jailbreak");
+    act(() => button!.click());
+    expect(onOpenJailbreakSettings).toHaveBeenCalledOnce();
+  });
+
+  it("shows the jailbreak model name while the conversation toggle is on", () => {
+    renderComposer(async () => true, {
+      jailbreakConfigured: true,
+      jailbreakEnabled: true,
+      jailbreakModelLabel: "Dolphin Mistral 24B",
+      onJailbreakChange: vi.fn(),
+      onOpenJailbreakSettings: vi.fn(),
+    });
+    const row = container!.querySelector('[data-testid="composer-jailbreak"]');
+    expect(row?.textContent).toContain("Dolphin Mistral 24B");
+    expect(row?.querySelector('[role="switch"]')?.getAttribute("aria-checked")).toBe("true");
+  });
+
+  it("turns jailbreak off for this conversation", () => {
+    const onJailbreakChange = vi.fn();
+    renderComposer(async () => true, {
+      jailbreakConfigured: true,
+      jailbreakEnabled: true,
+      jailbreakModelLabel: "Dolphin Mistral 24B",
+      onJailbreakChange,
+      onOpenJailbreakSettings: vi.fn(),
+    });
+    act(() => {
+      container!.querySelector<HTMLElement>(
+        '[data-testid="composer-jailbreak"] [role="switch"]',
+      )!.click();
+    });
+    expect(onJailbreakChange).toHaveBeenCalledWith(false);
+  });
+});
